@@ -11,9 +11,10 @@ from django.db import models
 from django.conf import settings
 from django.utils.importlib import import_module
 from django.contrib.auth.models import User
+from datetime import datetime
 
 from urls import *
-from component.models import Category,Component,Post,CategoryForm,ComponentForm,UserComponent,PostForm
+from component.models import Category,Component,Post,Comment,CategoryForm,ComponentForm,UserComponent,PostForm
 
 
 
@@ -158,8 +159,9 @@ def post_add(request):
 def component_detail(request,category_name,component_name):
     """ This is another style of showing the detail component,including its readme page. """
     
+    component = Component.objects.get(name=component_name) 
+
     if request.POST.get('save',None):
-        component = Component.objects.get(name=component_name)
         component_form = ComponentForm(request.POST,prefix='component',instance=component)
         post = Post.objects.get(title=component.post)
         post_form = PostForm(request.POST,prefix='post',instance=post)
@@ -171,10 +173,20 @@ def component_detail(request,category_name,component_name):
         if post_form.is_valid:
             post_form.save()
 
+    if request.POST.get('comment',None):
+        print "In comment"
+        create_time = datetime.now()
+        body = request.POST.get('text') 
+        print body
+        user = User.objects.get(username=request.user.username)
+
+        comment = Comment(author=user,component=component,create_time=create_time,body=body)
+        print comment
+        comment.save()
+
     flag = request.user.is_authenticated()
     editable = False
     form = {}
-    component = Component.objects.get(name=component_name) 
     post = Post.objects.get(title=component.post)
     if flag:
         maintainers = component.maintainers.all()
@@ -185,6 +197,7 @@ def component_detail(request,category_name,component_name):
     component_form = ComponentForm(instance=component)
     post_form = PostForm(instance=post)
 
+    comments = Comment.objects.filter(component=component.id)
 
     return render_to_response("component_detail.html",{
         'editable': editable,
@@ -192,6 +205,7 @@ def component_detail(request,category_name,component_name):
         'postform': post_form,
         'component_name': component_name,
         'post': component.post,
+        'comments': comments,
         },
         context_instance=RequestContext(request)
     )

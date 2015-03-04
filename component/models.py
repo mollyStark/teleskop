@@ -91,6 +91,16 @@ class Component(models.Model):
     class Meta:
         db_table = 'component'
 
+class Comment(models.Model):
+    """ This is the comment of the post of the component"""
+
+    author = models.ForeignKey(User)
+    component = models.ForeignKey(Component)
+    create_time = models.DateTimeField('time')
+    body = models.TextField()
+
+    class Meta:
+        db_table = 'comment'
 
 class UserComponent(models.Model):
     """This is the relationship of user and component"""
