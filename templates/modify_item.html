@@ -1,0 +1,24 @@
+{%extends "base.html"%}
+
+{%block content%}
+<h1>Modify {{type}}</h1>
+<div class="content-main"> 
+  <form id="modify_form" name="modify_form" action="" method="post">{%csrf_token%}
+      {{component_form}}
+
+      {{post_form}}
+    <div class="submit-row">
+      <input type="hidden" name="id" value="{{id}}"/>
+      <input type="submit" name="save" value="save" onClick="modify_form.submit()"/>
+      <input type="submit" name="cancle" value="cancle" onClick="modify_form.submit()">
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{%block footer%}
+{{block.super}}
+{%endblock%}
+  
+

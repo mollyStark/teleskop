@@ -1,0 +1,24 @@
+{%extends "base.html"%}
+
+{% load djangomarkdown %}
+
+{% block content %}
+
+<h1>{{component_name}}</h1>
+
+<div class="contain-main">
+  {% if editable %}
+  <div class="operate">
+    <span class="edit">
+      <a class="button right" href="edit/">edit</a>
+    </span>
+  </div>
+  {% endif %}
+
+  <div class="content">
+    {{ post.body|djangomarkdown}}
+  </div>
+</div>
+
+{% endblock %}
+

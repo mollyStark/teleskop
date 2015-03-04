@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+  <title>
+    {% block title %}Teleskop{% endblock %}
+  </title>
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/base.css">
+  <link rel="stylesheet" type="text/css" href="/static/admin/css/changelists.css">
+
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery.min.js"></script>
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/actions.min.js"></script>
+</head>
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+<div id="container">
+
+    {% if not is_popup %}
+
+    {% endif %}
+    <!-- Content -->
+    <div id="content">
+	  {% block content %}
+	  {% block object_tools %}{% endblock %}
+	  {% endblock %}
+    </div>
+    <!-- END Content -->
+
+    <!-- Footer -->
+    <div id="footer">
+    {% block footer %}
+    <span>@2015 Anjuke Inc. Powered by SysDev Team 反馈建议 ：<a href="mailto:home@anjuke.com?subject=Advise">home@anjuke.com</a>
+    {% endblock %}
+    </span>
+    </div>
+    <!-- End Footer -->
+</div>
+<!-- End Container-->
+
+</body>
+</html>

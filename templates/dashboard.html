@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ block.super }} | {{ dashboard }}
+{% endblock %}
+
+{% block content %}
+<h1>component dashboard </h1>
+<div id="content-main">
+  <div class="container">
+    <div class="dashboard">
+      <div id="all_components" class="boxed-group" role="navigation">
+	<div class="boxed-group-inner">
+	  <div class="menu" role="navigation">
+            <p>All Components</p>
+	    <ul class="current">
+	      {% for p in categories %}
+	      <li class="nav-l1">
+	      <a class="category" href="../{{p.name}}">{{p.name}}</a>
+	      <ul>
+		{% for q in p.components %}
+		<li class="nav-l2">
+		<a class="component" href="{{p.name}}/{{q.name}}">{{q.name}}</a>
+		</li>
+		{% endfor %}
+	      </ul>
+	      </li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+        </div>
+      </div>
+
+      {% if is_login %}
+      <div id="my_component" role="navigation">
+	<p>My Components</p>
+        <div class="boxed-group-action">
+	  <a class="addlink" href="./new">New Component</a>
+        </div>
+
+	<div class="boxed-group-inner">
+          <div class="menu" role="navigation">
+	    <ul class="current">
+	      {% for p in my_categories %}
+	      <li class="nav-l1">
+	      <a class="category" href="../{{p.name}}">{{p.name}}</a>
+	      <ul>
+		{% for q in p.components %}
+		<li class="nav-l2">
+		<a class="component" href="{{p.name}}/{{q.name}}">{{q.name}}</a>
+		</li>
+		{% endfor %}
+	      </ul>
+	      </li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+         </div>
+        </div>
+       </div>
+       {% endif %}
+     </div>
+    </div>
+  </div>
+
+{% endblock %} 
+
+
