@@ -3,7 +3,7 @@
 {%block content%}
 <h1>Modify {{type}}</h1>
 <div class="content-main"> 
-  <form id="modify_form" name="modify_form" action="" method="post">{%csrf_token%}
+  <form id="modify_form" name="modify_form" action="../" method="post">{%csrf_token%}
       {{component_form}}
 
       {{post_form}}

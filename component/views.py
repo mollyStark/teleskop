@@ -158,21 +158,32 @@ def post_add(request):
 def component_detail(request,category_name,component_name):
     """ This is another style of showing the detail component,including its readme page. """
     
+    if request.POST.get('save',None):
+        component = Component.objects.get(name=component_name)
+        component_form = ComponentForm(request.POST,prefix='component',instance=component)
+        post = Post.objects.get(title=component.post)
+        post_form = PostForm(request.POST,prefix='post',instance=post)
+        print component_form
+        if component_form.is_valid:
+            component_form = component_form.save(commit=False)
+            component_form.save()
+
+        if post_form.is_valid:
+            post_form.save()
+
     flag = request.user.is_authenticated()
-    print flag
     editable = False
     form = {}
     component = Component.objects.get(name=component_name) 
-    print component.post
     post = Post.objects.get(title=component.post)
     if flag:
         maintainers = component.maintainers.all()
-        print maintainers
         for maintainer in maintainers:
             if request.user.username == maintainer.username:
                 editable = True
-                component_form = ComponentForm(instance=component)
-                post_form = PostForm(instance=post)
+                
+    component_form = ComponentForm(instance=component)
+    post_form = PostForm(instance=post)
 
 
     return render_to_response("component_detail.html",{
@@ -187,9 +198,13 @@ def component_detail(request,category_name,component_name):
 
 
 def component_edit(request,category_name,component_name):
-    
-
-
+#     
+#     if request.method == "POST":
+#         form = ComponentForm(request.POST)
+#         if form.is_valid:
+#             component = form.save(commit=False)
+#             component.save()
+# 
             
 
     component = Component.objects.get(name=component_name)
@@ -199,7 +214,6 @@ def component_edit(request,category_name,component_name):
 
 
     component_form = ComponentForm(instance=component,prefix='component')
-    print component_form
     post_form = PostForm(instance=post,prefix='post')
 
 
@@ -208,7 +222,6 @@ def component_edit(request,category_name,component_name):
         'post_form': post_form,
         },
         context_instance=RequestContext(request)
-
     )   
 
 
