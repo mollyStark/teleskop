@@ -18,6 +18,21 @@
   <div class="content">
     {{ post.body|djangomarkdown}}
   </div>
+
+  <div class="comment-container">
+    <h2>Comments</h2>
+    {%for comment in comments%}
+    <div class="comment">
+	    {{ comment.body|djangomarkdown}}
+    </div>
+    {%endfor%}
+
+    <div id="new-comment" method="post">
+      <input class="text" type="text" name="text">
+      <input class="default" type="submit" action="" name="comment" value="submit">
+    </div>
+  </div>
+
 </div>
 
 {% endblock %}
