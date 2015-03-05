@@ -1,0 +1,17 @@
+{%extends "base.html"%}
+
+{%block title%}
+{{block.super}} | {{title}}
+{%endblock%}
+
+{%block content%}
+<h1>delete comfirmation</h1>
+<div id="content-main">
+    <p>Are you sure to delete the {{type}} {{component}}?</p>
+
+  <form action="" method="post" name="delform" >{%csrf_token%}
+    <input type="submit" name="yes" value="Yes,sure." onClick="delform.submit();"/>
+    <input type="submit" name="no" value="No." onClick="delform.action='../';delform.method='get';delform.submit();"/>
+  </form>
+</div>
+{% endblock %}

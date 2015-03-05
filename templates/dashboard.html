@@ -16,11 +16,17 @@
 	    <ul class="current">
 	      {% for p in categories %}
 	      <li class="nav-l1">
-	      <a class="category" href="../{{p.name}}">{{p.name}}</a>
+
+              {% if can_modify_category %}
+	      <a class="category" href="{{p.name}}/edit/">{{p.name}}</a>
+              {%else%}
+              <span class="category"/>{{p.name}}
+              {% endif %}
+
 	      <ul>
 		{% for q in p.components %}
 		<li class="nav-l2">
-		<a class="component" href="{{p.name}}/{{q.name}}">{{q.name}}</a>
+		<a class="component" href="{{p.name}}/{{q.name}}/">{{q.name}}</a>
 		</li>
 		{% endfor %}
 	      </ul>
@@ -43,11 +49,16 @@
 	    <ul class="current">
 	      {% for p in my_categories %}
 	      <li class="nav-l1">
-	      <a class="category" href="../{{p.name}}">{{p.name}}</a>
+              {% if can_modify_category %}
+	      <a class="category" href="{{p.name}}/edit/">{{p.name}}</a>
+              {%else%}
+              <span class="category"/>{{p.name}}
+              {% endif %}
+
 	      <ul>
 		{% for q in p.components %}
 		<li class="nav-l2">
-		<a class="component" href="{{p.name}}/{{q.name}}">{{q.name}}</a>
+		<a class="component" href="{{p.name}}/{{q.name}}/">{{q.name}}</a>
 		</li>
 		{% endfor %}
 	      </ul>

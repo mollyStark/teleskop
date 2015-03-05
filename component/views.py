@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.db import models
 from django.conf import settings
 from django.utils.importlib import import_module
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 from datetime import datetime
 
 from urls import *
@@ -30,6 +30,8 @@ def component_list(request):
     """This is to list all of the components grouped by categories."""
 
     if request.method == 'POST':
+
+      
         form = ComponentForm(request.POST)
         if form.is_valid:
             component = form.save(commit=False)
@@ -46,20 +48,29 @@ def component_list(request):
     categories_all = []
     my_categories = []
 
+    can_modify_category = False
+
     flag = request.user.is_authenticated()
     if flag:
+
         maintainer = User.objects.get(username=request.user.username)
+        user_group = Group.objects.filter(user=maintainer.id)
+        for group in user_group:
+            print group.name
+            if 'admin' == group.name:
+                can_modify_category = True
+
         
         components = maintainer.component_set.all().order_by('category')
 
         count = 0
         if components.exists():
             tmp = CategoryWithComponents()
-            tmp.name = Category.objects.get(id=components[0].id)
+            tmp.name = Category.objects.get(id=components[0].category_id)
             my_categories.append(tmp)
             
         for component in components:
-            cato_name = Category.objects.get(id=component.id)
+            cato_name = Category.objects.get(id=component.category_id)
             if cato_name != my_categories[count].name:
                 count = count + 1
                 tmp = CategoryWithComponents()
@@ -84,6 +95,7 @@ def component_list(request):
         'categories':categories_all,
         'my_categories':my_categories,
         'is_login': flag,
+        'can_modify_category': can_modify_category,
         },
         context_instance=RequestContext(request)
     )
@@ -114,11 +126,13 @@ def category_add(request):
     if request.method == "POST":
         form = CategoryForm(request.POST)
 	form.save()
+       
         if '_popup' in request.POST:
-            return render_to_response("popup_response.html",{
+            print request.POST.get('name')
+            return render_to_response("popup_response.html",                {
                 "name": request.POST.get('name'),
                 }
-        )
+            )
 
     new_form = CategoryForm()
     if '_popup' in request.GET:
@@ -138,8 +152,10 @@ def post_add(request):
         form = PostForm(request.POST)
 	form.save()
         if '_popup' in request.POST:
-            return render_to_response("popup_response.html",
-        )
+            return render_to_response("popup_response.html",{
+                'name': request.POST.get('title')
+                }
+            )
 
     new_form = PostForm()
     if '_popup' in request.GET:
@@ -222,8 +238,6 @@ def component_edit(request,category_name,component_name):
             
 
     component = Component.objects.get(name=component_name)
-    print component
-    print component.post
     post = Post.objects.get(title=component.post)
 
 
@@ -234,9 +248,76 @@ def component_edit(request,category_name,component_name):
     return render_to_response("modify_item.html",{
         'component_form': component_form,
         'post_form': post_form,
+        'type': "component",
+        'editable': True,
         },
         context_instance=RequestContext(request)
     )   
 
 
+def component_delete(request,category_name,component_name):
+
+    component = Component.objects.get(name=component_name)
+
+    if request.POST.get('yes',None):
+        print "in delete"
+        post = Post.objects.get(title=component.post)
+        post.delete()
+        comments = Comment.objects.filter(component=component.id)
+        comments.delete()
+	component.delete()
+
+        return redirect(reverse("component_list",args=[]))	
+    
+    return render_to_response("delete-confirm.html",{
+	"title": "delete confirmation",
+	"type": "component",
+	"component": component.name,
+	},
+	context_instance=RequestContext(request)
+    )
+
+def category_delete(request,category_name):
+    category = Category.objects.get(name=category_name)
+
+    if request.POST.get('yes',None):
+        print "in delete"
+        category.delete()
+
+        return redirect(reverse("component_list",args=[]))	
+    
+    return render_to_response("delete-confirm.html",{
+	"title": "delete confirmation",
+	"type": "category",
+	"component": category.name,
+	},
+	context_instance=RequestContext(request)
+    )
+   
+
+def category_edit(request,category_name):
+
+    print category_name
+    category = Category.objects.get(name=category_name)
+
+    if request.POST.get("save",None):
+        form = CategoryForm(request.POST,instance=category)
+        form.save()
+        return redirect(reverse("component_list",args=[]))	
+
+    form = CategoryForm(instance=category)
+    components = Component.objects.filter(category=category.id)
+    editable = True
+    if components.exists():
+        editable = False
+
+    print editable
+    print components
+    return render_to_response("modify_item.html",{
+        "type": "category",
+        "category_form": form,
+        "editable": editable,
+        },
+        context_instance=RequestContext(request)
+    )
 

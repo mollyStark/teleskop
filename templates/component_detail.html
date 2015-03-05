@@ -12,6 +12,8 @@
     <span class="edit">
       <a class="button right" href="edit/">edit</a>
     </span>
+
+   
   </div>
   {% endif %}
 
@@ -27,10 +29,10 @@
     </div>
     {%endfor%}
 
-    <div id="new-comment" method="post">
+    <form action="" id="new-comment" method="post">{% csrf_token %}
       <input class="text" type="text" name="text">
       <input class="default" type="submit" action="" name="comment" value="submit">
-    </div>
+    </form>
   </div>
 
 </div>
