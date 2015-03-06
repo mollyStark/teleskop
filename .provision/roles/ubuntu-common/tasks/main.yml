@@ -1,0 +1,20 @@
+---
+- name: change the sourcelist
+  template: src=sources.list
+            dest=/etc/apt/sources.list
+
+- name: update apt
+  apt: update_cache=yes
+       cache_valid_time=43200
+
+- name: ensure basic packages 
+  apt: pkg={{item}}
+       state=present
+  with_items:
+    - git
+    - vim
+    - python-setuptools
+
+- name: install pip
+  easy_install: name=pip
+

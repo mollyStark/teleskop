@@ -15,9 +15,10 @@
       <input type="hidden" name="id" value="{{id}}"/>
       <input type="submit" name="save" value="save" onClick="modify_form.submit()"/>
       {%if editable%}
-      <span class="delete">
+      <!--<span class="delete">
         <a class="button right" href="../delete/">delete</a>
-      </span>
+</span>-->
+      <input type="submit" name="delete" value="delete" onClick="modify_form.action='../delete/';modify_form.submit();" />
       {%endif%}
       <input type="submit" name="cancle" value="cancle" onClick="modify_form.submit()">
     </div>

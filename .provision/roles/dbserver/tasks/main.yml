@@ -1,0 +1,36 @@
+---
+- name: install MySQL 
+  shell: "{{vagrant_directory}}/mysql.sh"
+
+- name: install mysqldb
+  apt:
+    name: python-mysqldb
+
+# - name: change root password
+#   mysql_user:
+#     login_user={{dbuser}}
+#     login_password={{current_passwd}}
+#     user={{dbuser}}
+#     password={{passwd}}
+
+- name: install libmysqlclient-dev,python-dev
+  apt: pkg={{item}}
+  with_items:
+    - libmysqlclient-dev
+    - python-dev
+
+- name: install mysql-python
+  pip: name=mysql-python
+       virtualenv={{vagrant_home}}/.virtualenv
+  sudo: yes
+
+- name: create database teleskop
+  mysql_db:
+    name=teleskop
+    state=present
+    login_user={{dbuser}}
+    login_password={{passwd}}
+
+
+- name: change the characterset
+  shell: "{{vagrant_directory}}/chgdataset.py"

@@ -1,0 +1,28 @@
+---
+  
+- name: install django
+  pip: name=Django 
+       version=1.6.10
+       chdir={{vagrant_home}}/.virtualenv
+       virtualenv={{vagrant_home}}/.virtualenv
+
+
+- name: sync the django database
+  django_manage: 
+    command=syncdb
+    app_path={{vagrant_directory}}
+    virtualenv={{vagrant_home}}/.virtualenv
+#  notify:
+#  - run server
+
+- name: install the markdown2 plugin
+  pip: name=markdown2
+       virtualenv={{vagrant_home}}/.virtualenv
+
+- name: run server
+  shell: "nohup {{vagrant_home}}/bin/ve python {{vagrant_directory}}/manage.py runserver 0.0.0.0:8000  &"
+ 
+# not work, one should handly create a super user
+#- name: create super user
+#  shell: "{{vagrant_home}}/bin/ve python {{vagrant_directory}}/manage.py createsuperuser --username=teleskop --email=tester@test.org"
+

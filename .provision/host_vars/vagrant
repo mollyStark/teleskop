@@ -1,0 +1,16 @@
+# -*- mode:yaml -*-
+# vi: set ft=yaml :
+---
+ansible_ssh_host: 192.168.33.10
+ansible_ssh_port: 22
+ansible_ssh_user: vagrant
+ansible_sudo: true
+
+common_apt_mirror: http://mirrors.corp.anjuke.com/ubuntu
+common_release_code: precise
+
+
+vagrant_directory: /vagrant
+vagrant_home: /home/vagrant
+virtualenv_dir: /vagrant/.virtualenv
+

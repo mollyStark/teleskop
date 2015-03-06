@@ -1,0 +1,31 @@
+---
+- name: create .pip
+  file: path={{vagrant_directory}}/.pip
+        state=directory
+
+- name: change the mirrors of pip 
+  copy: src=~/.pip/pip.conf
+        dest={{vagrant_directory}}/.pip/pip.conf
+
+- name: install virtualenv
+  pip: name=virtualenv
+
+- name: create directory bin to store ve
+  file: path={{vagrant_home}}/bin 
+        state=directory
+
+- name: copy ve
+  template: src=ve 
+            dest={{vagrant_home}}/bin/ve 
+
+- name: change the mode of ve
+  file: path={{vagrant_home}}/bin/ve
+        mode="a+x"
+
+- name: add the ve path to PATH 
+  lineinfile: dest={{vagrant_home}}/.bashrc 
+              line="export PATH=$PATH:{{vagrant_home}}/bin" 
+              state=present
+              create=yes
+
+  

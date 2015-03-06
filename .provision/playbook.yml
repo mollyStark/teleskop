@@ -1,0 +1,16 @@
+---
+- hosts: all
+  roles:
+    - ubuntu-common
+
+- hosts: vagrant
+  roles: 
+    - virtualenv-vagrant
+    - dbserver
+    - webserver
+
+- hosts: production
+  roles:
+    - virtualenv-production
+    - dbserver
+    - webserver

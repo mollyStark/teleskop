@@ -1,0 +1,4 @@
+--- 
+- name: run server
+  shell: "cd {{vagrant_directory}}/teleskop/ && nohup {{vagrant_home}}/bin/ve python manage.py runserver 0.0.0.0:8000 &"
+

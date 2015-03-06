@@ -60,6 +60,9 @@ class Category(models.Model):
     def __unicode__(self):
 	return self.name
 
+    def get_absolute_url(self):
+        return u'/category/%d' % self.id 
+
     class Meta:
         db_table = 'category'
 
@@ -70,6 +73,9 @@ class Post(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return u'/post/%d' % self.id
 
     class Meta:
         db_table = 'post'
@@ -161,4 +167,3 @@ class ComponentForm(ModelForm):
     class Meta:
         model = Component
 
-class ComponentPostForm(ComponentForm,PostForm):    pass

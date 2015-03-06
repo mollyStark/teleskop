@@ -12,6 +12,8 @@ from django.conf import settings
 from django.utils.importlib import import_module
 from django.contrib.auth.models import User,Group
 from datetime import datetime
+from django.views.generic.edit import CreateView
+from django.utils.html import escape, escapejs
 
 from urls import *
 from component.models import Category,Component,Post,Comment,CategoryForm,ComponentForm,UserComponent,PostForm
@@ -31,9 +33,8 @@ def component_list(request):
 
     if request.method == 'POST':
 
-      
         form = ComponentForm(request.POST)
-        if form.is_valid:
+        if form.is_valid():
             component = form.save(commit=False)
             component.save()
             
@@ -51,8 +52,9 @@ def component_list(request):
     can_modify_category = False
 
     flag = request.user.is_authenticated()
-    if flag:
 
+    if flag:
+        # get the login user information
         maintainer = User.objects.get(username=request.user.username)
         user_group = Group.objects.filter(user=maintainer.id)
         for group in user_group:
@@ -60,16 +62,18 @@ def component_list(request):
             if 'admin' == group.name:
                 can_modify_category = True
 
-        
+        # get all the components
         components = maintainer.component_set.all().order_by('category')
 
         count = 0
         if components.exists():
+            # initail the CategoryWithComponents struct
             tmp = CategoryWithComponents()
             tmp.name = Category.objects.get(id=components[0].category_id)
             my_categories.append(tmp)
             
         for component in components:
+            # rearrange the components the login_user maintain
             cato_name = Category.objects.get(id=component.category_id)
             if cato_name != my_categories[count].name:
                 count = count + 1
@@ -80,7 +84,7 @@ def component_list(request):
             
             my_categories[count].components.append(component)
 
-
+    # rearrange all the components
     for cato in catos:
         tmp = CategoryWithComponents()
         tmp.name = cato.name
@@ -121,55 +125,106 @@ def component_add(request):
         context_instance=RequestContext(request)
     )
 
+class CategoryAddView(CreateView):
+    """ This is the generic view used to get the object when add category window pop back. """
 
-def category_add(request):
-    if request.method == "POST":
-        form = CategoryForm(request.POST)
-	form.save()
-       
-        if '_popup' in request.POST:
-            print request.POST.get('name')
-            return render_to_response("popup_response.html",                {
-                "name": request.POST.get('name'),
-                }
-            )
+    model = Category
+    fields = ['name']
+    template_name = 'add_items.html'
 
-    new_form = CategoryForm()
-    if '_popup' in request.GET:
-        is_popup = True
-    else:
-        is_popup = False
-    return render_to_response("add_items.html",{
-	"title": "category",
-	"form" : new_form,
-        "is_popup": is_popup,
-        },
-        context_instance=RequestContext(request)
-    )
+    def get_context_data(self, **kwargs):
+        context = super(CategoryAddView,self).get_context_data(**kwargs)
+        if ('_popup' in self.request.GET):
+            print "popup"
+            context['is_popup'] = self.request.GET['_popup'] 
+        return context
 
-def post_add(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-	form.save()
-        if '_popup' in request.POST:
-            return render_to_response("popup_response.html",{
-                'name': request.POST.get('title')
-                }
-            )
+    def post(self, request, *args, **kwargs):
+        ## Save the normal response
+        self.object = None
+        response = super(CategoryAddView,self).post(request, *args, **kwargs)
+        ## This will fire the script to close the popup and update the list
+        if "_popup" in request.POST:
+            print "in post()"
+            return HttpResponse('<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script>' % \
+                (escape(self.object.pk), escapejs(self.object)))
+        ## No popup, so return the normal response
+        return response
 
-    new_form = PostForm()
-    if '_popup' in request.GET:
-        is_popup = True
-    else:
-        is_popup = False
-    return render_to_response("add_items.html",{
-	"title": "post",
-	"form" : new_form,
-        "is_popup": is_popup,
-        },
-        context_instance=RequestContext(request)
-    )
 
+# def category_add(request):
+#     if request.method == "POST":
+#         form = CategoryForm(request.POST)
+# 	form.save()
+#        
+#         if '_popup' in request.POST:
+#             print request.POST.get('name')
+#             return render_to_response("popup_response.html",                {
+#                 "name": request.POST.get('name'),
+#                 }
+#             )
+# 
+#     new_form = CategoryForm()
+#     if '_popup' in request.GET:
+#         is_popup = True
+#     else:
+#         is_popup = False
+#     return render_to_response("add_items.html",{
+# 	"title": "category",
+# 	"form" : new_form,
+#         "is_popup": is_popup,
+#         },
+#         context_instance=RequestContext(request)
+#     )
+
+class PostAddView(CreateView):
+    model = Post
+    fields = ['title','body']
+    template_name = 'add_items.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PostAddView,self).get_context_data(**kwargs)
+        if ('_popup' in self.request.GET):
+            print "popup"
+            context['is_popup'] = self.request.GET['_popup'] 
+        return context
+
+    def post(self, request, *args, **kwargs):
+        ## Save the normal response
+        self.object = None
+        response = super(PostAddView,self).post(request, *args, **kwargs)
+        ## This will fire the script to close the popup and update the list
+        if "_popup" in request.POST:
+            print "in post()"
+            return HttpResponse('<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script>' % \
+                (escape(self.object.pk), escapejs(self.object)))
+        ## No popup, so return the normal response
+        return response
+
+
+# def post_add(request):
+#     if request.method == "POST":
+#         form = PostForm(request.POST)
+# 	form.save()
+#         if '_popup' in request.POST:
+#             return render_to_response("popup_response.html",{
+#                 'name': request.POST.get('title')
+#                 }
+#             )
+# 
+#     new_form = PostForm()
+#     if '_popup' in request.GET:
+#         is_popup = True
+#     else:
+#         is_popup = False
+#     return render_to_response("add_items.html",{
+# 	"title": "post",
+# 	"form" : new_form,
+#         "is_popup": is_popup,
+#         },
+#         context_instance=RequestContext(request)
+#     )
+# 
    
 
 def component_detail(request,category_name,component_name):
@@ -177,33 +232,35 @@ def component_detail(request,category_name,component_name):
     
     component = Component.objects.get(name=component_name) 
 
+    # save the modified component
     if request.POST.get('save',None):
         component_form = ComponentForm(request.POST,prefix='component',instance=component)
         post = Post.objects.get(title=component.post)
         post_form = PostForm(request.POST,prefix='post',instance=post)
-        print component_form
-        if component_form.is_valid:
+        
+        if post_form.is_valid():
+            post_form.save()
+            
+        if component_form.is_valid():
             component_form = component_form.save(commit=False)
             component_form.save()
 
-        if post_form.is_valid:
-            post_form.save()
-
+    # save the added comment
     if request.POST.get('comment',None):
-        print "In comment"
         create_time = datetime.now()
         body = request.POST.get('text') 
-        print body
         user = User.objects.get(username=request.user.username)
 
         comment = Comment(author=user,component=component,create_time=create_time,body=body)
-        print comment
         comment.save()
 
+    
     flag = request.user.is_authenticated()
     editable = False
     form = {}
     post = Post.objects.get(title=component.post)
+
+    # if the login_user is the maintainer of this component,there will be an edit in the detail page.
     if flag:
         maintainers = component.maintainers.all()
         for maintainer in maintainers:
@@ -228,14 +285,7 @@ def component_detail(request,category_name,component_name):
 
 
 def component_edit(request,category_name,component_name):
-#     
-#     if request.method == "POST":
-#         form = ComponentForm(request.POST)
-#         if form.is_valid:
-#             component = form.save(commit=False)
-#             component.save()
-# 
-            
+    """ This function is urled when the edit button is clicked."""        
 
     component = Component.objects.get(name=component_name)
     post = Post.objects.get(title=component.post)
@@ -260,9 +310,10 @@ def component_delete(request,category_name,component_name):
     component = Component.objects.get(name=component_name)
 
     if request.POST.get('yes',None):
-        print "in delete"
+        # delete the post of the component
         post = Post.objects.get(title=component.post)
         post.delete()
+        # delete all the comments of the component
         comments = Comment.objects.filter(component=component.id)
         comments.delete()
 	component.delete()
@@ -281,7 +332,6 @@ def category_delete(request,category_name):
     category = Category.objects.get(name=category_name)
 
     if request.POST.get('yes',None):
-        print "in delete"
         category.delete()
 
         return redirect(reverse("component_list",args=[]))	
@@ -296,8 +346,8 @@ def category_delete(request,category_name):
    
 
 def category_edit(request,category_name):
+    """This is urled when the category is clickedi or the modify is confirmed."""
 
-    print category_name
     category = Category.objects.get(name=category_name)
 
     if request.POST.get("save",None):
@@ -311,8 +361,6 @@ def category_edit(request,category_name):
     if components.exists():
         editable = False
 
-    print editable
-    print components
     return render_to_response("modify_item.html",{
         "type": "category",
         "category_form": form,
